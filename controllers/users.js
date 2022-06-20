@@ -2,18 +2,36 @@ const User = require('../models/user');
 
 module.exports.getUser = (req, res, next) => {
   User.find({}).then((data) => {
-    res.send({ users: data });
-  }).catch(next);
+    if (data.length >= 1) {
+      res.send({ users: data });
+    } else {
+      res.status(400).send({ message: 'Пользователи не найдены' });
+    }
+  }).catch(() => {
+    res.status(500);
+    next();
+  });
 };
 
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId).then((data) => {
-    res.send({ user: data });
-  }).catch(next);
+    if (data) {
+      res.send({ user: data });
+    } else {
+      res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+    }
+  }).catch(() => {
+    res.status(500);
+    next();
+  });
 };
 
 module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
+  if (!name || !about || !avatar) {
+    res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+  }
+
   User.create({ name, about, avatar }).then((user) => {
     res.send({ user });
   }).catch(next);
@@ -25,8 +43,19 @@ module.exports.updateUser = (req, res, next) => {
     new: true,
     runValidators: true,
   }).then((data) => {
-    res.send({ user: data });
-  }).catch(next);
+    if (data) {
+      res.send({ user: data });
+    } else {
+      res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+    }
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new Error('Переданы некорректные данные при обновлении профиля'));
+    } else {
+      res.status(500);
+      next();
+    }
+  });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
@@ -35,6 +64,17 @@ module.exports.updateAvatar = (req, res, next) => {
     new: true,
     runValidators: true,
   }).then((data) => {
-    res.send({ user: data });
-  }).catch(next);
+    if (data) {
+      res.send({ user: data });
+    } else {
+      res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+    }
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new Error('Переданы некорректные данные при обновлении аватара'));
+    } else {
+      res.status(500);
+      next();
+    }
+  });
 };
