@@ -20,9 +20,11 @@ module.exports.getUserById = (req, res, next) => {
     } else {
       res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
     }
-  }).catch(() => {
-    res.status(500);
-    next();
+  }).catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Некорректный ID' });
+      next();
+    }
   });
 };
 
@@ -36,6 +38,7 @@ module.exports.createUser = (req, res, next) => {
     res.send({ user });
   }).catch(() => {
     res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+    next();
   });
 };
 
