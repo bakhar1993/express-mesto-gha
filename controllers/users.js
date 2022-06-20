@@ -28,13 +28,15 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
-  if (!name || !about || !avatar) {
-    res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-  }
+  // if (!name || !about || !avatar) {
+  //   res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+  // }
 
   User.create({ name, about, avatar }).then((user) => {
     res.send({ user });
-  }).catch(next);
+  }).catch(()={
+    res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+  });
 };
 
 module.exports.updateUser = (req, res, next) => {
@@ -50,7 +52,7 @@ module.exports.updateUser = (req, res, next) => {
     }
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      next(new Error('Переданы некорректные данные при обновлении профиля'));
+      res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
     } else {
       res.status(500);
       next();
@@ -71,7 +73,7 @@ module.exports.updateAvatar = (req, res, next) => {
     }
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      next(new Error('Переданы некорректные данные при обновлении аватара'));
+      res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
     } else {
       res.status(500);
       next();
