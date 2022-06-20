@@ -34,7 +34,7 @@ module.exports.createUser = (req, res, next) => {
 
   User.create({ name, about, avatar }).then((user) => {
     res.send({ user });
-  }).catch(()={
+  }).catch(() => {
     res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
   });
 };
