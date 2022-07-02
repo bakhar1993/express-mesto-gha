@@ -1,7 +1,8 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
-const UnauthorizedError = require('../errors/unauthorized-err');
+// const UnauthorizedError = require('../errors/unauthorized-err');
+const Forbidden = require('../errors/forbidden-err');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({}).then((data) => {
@@ -21,7 +22,7 @@ module.exports.createCard = (req, res, next) => {
     res.send({ card: data });
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      throw new BadRequestError('Переданы некорректные данные при создании карточки');
+      next(BadRequestError('Переданы некорректные данные при создании карточки'));
     } else {
       next(err);
     }
@@ -37,13 +38,13 @@ module.exports.deleteCard = (req, res, next) => {
         } else { throw new NotFoundError('Карточка с указанным _id не найдена'); }
       }).catch((err) => {
         if (err.name === 'CastError') {
-          throw new BadRequestError('Переданы некорректные данные при удалении карточки');
+          next(BadRequestError('Переданы некорректные данные при удалении карточки'));
         } else {
           next(err);
         }
       });
     } else {
-      throw new UnauthorizedError('Вы не можете удалять чужие карточки');
+      throw new Forbidden('Вы не можете удалять чужие карточки');
     }
   });
 };
@@ -59,7 +60,7 @@ module.exports.likeCard = (req, res, next) => {
     } else { throw new NotFoundError('Передан несуществующий _id карточки'); }
   }).catch((err) => {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Переданы некорректные данные для постановки лайка');
+      next(BadRequestError('Переданы некорректные данные для постановки лайка'));
     } else {
       next(err);
     }
@@ -77,7 +78,7 @@ module.exports.dislikeCard = (req, res, next) => {
     } else { throw new NotFoundError('Передан несуществующий _id карточки'); }
   }).catch((err) => {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Переданы некорректные данные для снятии лайка');
+      next(BadRequestError('Переданы некорректные данные для снятии лайка'));
     } else {
       next(err);
     }

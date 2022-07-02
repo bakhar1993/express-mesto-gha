@@ -27,7 +27,7 @@ module.exports.getUserById = (req, res, next) => {
     }
   }).catch((err) => {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID');
+      next(BadRequestError('Некорректный ID'));
     } else {
       next(err);
     }
